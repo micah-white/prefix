@@ -10,7 +10,7 @@ Git Repository for project files
 
 - Compile java files in both packages
 
-`javac edu/cs606/*java`
+`javac edu/cs606/*.java`
 
 `javac CtCILibrary/*.java`
 
