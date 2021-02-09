@@ -1,11 +1,15 @@
 JAVA_HOME = /usr/lib/jvm/java-11-openjdk-amd64
 EXEC = searchmanager
+DELAY = 3
+PREFIXES = con pre
 # JAVA_HOME = /usr/java/latest
 
 searchmanager: searchmanager.c
 	gcc -std=c99 -D_GNU_SOURCE searchmanager.c -o searchmanager
 
-all: java msgsnd.exe
+passageprocessor: 	
+
+all: java msgsnd.exe searchmanager
 
 java: 
 	javac edu/cs606/*.java
@@ -18,13 +22,14 @@ msgsnd.exe : msgsnd_pr.c msgrcv_lwr.c
 	gcc -std=c99 -D_GNU_SOURCE msgsnd_pr.c -o msgsnd.exe
 	gcc -std=c99 -D_GNU_SOURCE msgrcv_lwr.c -o msgrcv.exe
 
-test: msgsnd.exe
-	@printf "\n"
-	./msgsnd.exe con
-	@printf "\n"
-	java -cp . -Djava.library.path=. edu.cs606.MessageJNI
-	@printf "\n"
-	./msgrcv.exe
+test: searchmanager passageprocessor
+	./searchmanager $(DELAY) $(PREFIXES)
+
+remove_queues: 
+	ipcrm -Q 0x031000ed
+
+view_queues:
+	ipcs -a	
 
 clean:
 	rm -f *.exe
