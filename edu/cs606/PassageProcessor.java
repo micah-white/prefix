@@ -4,25 +4,21 @@ import java.util.concurrent.*;
 
 public class PassageProcessor{
 
-  public static void main(String[] args){
+  public static void main(){
 
-    const int numPassages = 5;
+    final int numPassages = 5;
     String[] prefixes;
-    // String[][]  samples = {{"conspicuous", "parallel", "withering"},{"coping", "figure", "parachute"}};
-    ArrayBlockingQueue[] workers = new ArrayBlockingQueue[treeCount];
-    ArrayBlockingQueue resultsOutputArray=new ArrayBlockingQueue(treeCount*10);
+    String[][] passages;
+    ArrayBlockingQueue[] workers = new ArrayBlockingQueue[numPassages];
+    ArrayBlockingQueue resultsOutputArray=new ArrayBlockingQueue(numPassages*10);
 
-    if (args.length == 0 || args[0].length() <= 2 ){
-        System.out.println("Provide prefix (min 3 characters) for search i.e. con\n");
-        System.exit(0);
-    }
-
-     for (int i=0;i<numPassages;i++) {
+    for (int i=0;i<numPassages;i++) {
        workers[i]=new ArrayBlockingQueue(10);
     }
 
-    new Worker(samples[0],0,workers[0],resultsOutputArray).start();
-    new Worker(samples[1],1,workers[1],resultsOutputArray).start();
+    for (int i = 0; i < numPassages; i++)
+      new Worker(passages[i],i,workers[0],resultsOutputArray).start();
+    
 
     for(int n = 0; n < prefixes.length; n++){
         for(int i = 0; i < numPassages; i++){
@@ -34,7 +30,7 @@ public class PassageProcessor{
 
     int counter=0;
 
-    while (counter<treeCount){
+    while (counter<numPassages){
       try {
         String results = (String)resultsOutputArray.take();
         System.out.println("results:"+results);
