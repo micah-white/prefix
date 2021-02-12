@@ -7,8 +7,6 @@ PREFIXES = con pre
 searchmanager: searchmanager.c
 	gcc -std=c99 -D_GNU_SOURCE searchmanager.c -o searchmanager
 
-passageprocessor: 	
-
 all: java msgsnd.exe searchmanager
 
 java: 
@@ -22,10 +20,13 @@ msgsnd.exe : msgsnd_pr.c msgrcv_lwr.c
 	gcc -std=c99 -D_GNU_SOURCE msgsnd_pr.c -o msgsnd.exe
 	gcc -std=c99 -D_GNU_SOURCE msgrcv_lwr.c -o msgrcv.exe
 	
-threading: java
-	java edu.cs606.ParallelTextSearch con
+threading: java msgsnd.exe
+	./msgsnd.exe con
+	java -cp . -Djava.library.path=. edu.cs606.PassageProcessor 2>/dev/null
+	./msgrcv.exe
 
-test: searchmanager passageprocessor
+
+test: searchmanager java
 	./searchmanager $(DELAY) $(PREFIXES)
 
 remove_queues: 

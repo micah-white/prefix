@@ -10,31 +10,36 @@ class Worker extends Thread{
   int id;
   String passageName;
 
-  public Worker(String[] words,int id,ArrayBlockingQueue prefix, ArrayBlockingQueue results){
+  public Worker(String[] words,int id, String pName, ArrayBlockingQueue prefix, ArrayBlockingQueue results){
     this.textTrieTree=new Trie(words);
     this.prefixRequestArray=prefix;
     this.resultsOutputArray=results;
     this.id=id;
-    this.passageName="Passage-"+Integer.toString(id)+".txt";//put name of passage here
+    this.passageName=pName;//put name of passage here
   }
 
   public void run() {
     System.out.println("Worker-"+this.id+" ("+this.passageName+") thread started ...");
-    //while (true){
+    while (true){
       try {
-        String prefix=(String)this.prefixRequestArray.take();
+        SearchRequest req=(SearchRequest)this.prefixRequestArray.take();
+        String prefix = req.prefix;
+        if(prefix == "")
+          break;
         String longest = textTrieTree.longestWord(prefix);
 
-        if(longest == "")
-          resultsOutputArray.put(passageName+":"+prefix+" not found");
-        //System.out.println("Worker-"+this.id+" "+req.requestID+":"+ prefix+" ==> "+word);
+        if(longest == ""){
+          System.out.println("Worker-"+this.id+" "+req.requestID+":"+ prefix + " ==> not found");
+          longest = "----";
+        }  
         else
-          resultsOutputArray.put(passageName+":"+prefix+" lw = " + longest);
-        
+          System.out.println("Worker-"+this.id+" "+req.requestID+":"+ prefix + " ==> "+ longest);
+
+        resultsOutputArray.put(longest + " " + this.id);
       } catch(InterruptedException e){
         System.out.println(e.getMessage());
       }
-    //}
+    }
   }
 
 }

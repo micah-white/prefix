@@ -7,52 +7,84 @@ import java.util.concurrent.*;
 
 public class PassageProcessor{
 
-  public static void main(){
-
-//     String[] prefixes;
-//     List<String> passageList = new ArrayList<String>();
-//     String[][] passages = ;
-
-// 	try {
-// 		File pList = new File("passsages.txt");
-// 		Scanner scanner = new Scanner(pList);
-// 		while (scanner.hasNextLine()){
-// 			passageList.add(scanner.nextLine());
-// 		}
-// 		scanner.close();
-// 	} catch(FileNotFoundException e){
-// 		System.out.println("file not found dummy\n");
-// 	}
+  public static void main(String args[]){
+    List<String> passageList = new ArrayList<String>();
+	try {
+		File pList = new File("passages.txt");
+		Scanner scanner = new Scanner(pList);
+		while (scanner.hasNextLine()){
+			passageList.add(scanner.nextLine());
+		}
+		scanner.close();
+	} catch(FileNotFoundException e){
+		System.out.println("file not found dummy\n");
+		return;
+	}
 	
-// 	int numPassages = passageList.size();
-// 	ArrayBlockingQueue[] workers = new ArrayBlockingQueue[numPassages];
-//     ArrayBlockingQueue resultsOutputArray=new ArrayBlockingQueue(numPassages*10);
+	int numPassages = passageList.size();
+	String[][] passages = new String[numPassages][];
+	for(int i = 0; i < numPassages; i++){
+		List<String> words = new ArrayList<String>();
+		try {
+			File passage = new File(passageList.get(i));
+			Scanner scanner = new Scanner(passage);
+			while (scanner.hasNext()){
+				words.add(scanner.next());
+			}
+			scanner.close();
+			passages[i] = new String[words.size()];
+			passages[i] = words.toArray(passages[i]);
+		} catch(FileNotFoundException e){
+			System.out.println(passageList.get(i) + " not found dummy\n");
+		}
+	}
 
-// 	for (int i=0;i<numPassages;i++) {
-// 		workers[i]=new ArrayBlockingQueue(10);
-// 	}
+	ArrayBlockingQueue[] workers = new ArrayBlockingQueue[numPassages];
+    ArrayBlockingQueue resultsOutputArray = new ArrayBlockingQueue(numPassages*10);
 
-//     for (int i = 0; i < numPassages; i++)
-//     	new Worker(passages[i],i,workers[0],resultsOutputArray).start();
-    
+	for (int i=0;i<numPassages;i++) {
+		workers[i]=new ArrayBlockingQueue(10);
+	}
 
-//     for(int n = 0; n < prefixes.length; n++){
-//         for(int i = 0; i < numPassages; i++){
-//             try {
-//                 workers[i].put(prefixes[n]);
-//             } catch (InterruptedException e) {};
-//         }
-//     }    
+    for (int i = 0; i < numPassages; i++)
+    	new Worker(passages[i],i, passageList.get(i), workers[i],resultsOutputArray).start();
+		
+	MessageJNI jni = new MessageJNI();
+	
+	int prefixCount = 0;
+    while(true){
 
-//     int counter=0;
+		SearchRequest msg = jni.readPrefixRequestMsg();
+		if(msg.requestID == 0)
+			break;
 
-//     while (counter<numPassages){
-//       try {
-//         String results = (String)resultsOutputArray.take();
-//         System.out.println("results:"+results);
-//         counter++;
-//       } catch (InterruptedException e) {};
-//     }
-//   }
+		prefixCount++;
+		for(int i = 0; i < numPassages; i++){
+			try{
+				workers[i].put(msg);
+			} catch (InterruptedException e) {};
+		}
 
+		int counter=0;
+
+		while (counter<numPassages){
+			try {
+				String[] outputs = ((String)resultsOutputArray.take()).split(" ");
+				String longestWord = outputs[0];
+				int passageIndex = Integer.parseInt(outputs[1]);
+				int present = 1;
+				if(longestWord == "----")
+					present = 0;
+				jni.writeLongestWordResponseMsg(prefixCount, msg.prefix, passageIndex, passageList.get(passageIndex), longestWord, numPassages, present);
+				counter++;
+			} catch (InterruptedException e) {};
+		}
+	}
+
+	for(int i = 0; i < numPassages; i++){
+		try {
+			workers[i].put("");
+		} catch (InterruptedException e) {};
+	}
+  }
 }

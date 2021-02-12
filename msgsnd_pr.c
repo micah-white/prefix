@@ -66,7 +66,7 @@ int main(int argc, char**argv)
     // We'll send message type 1
     sbuf.mtype = 1;
     strlcpy(sbuf.prefix,argv[1],WORD_LENGTH);
-    sbuf.id=0;
+    sbuf.id=1;
     buf_length = strlen(sbuf.prefix) + sizeof(int)+1;//struct size without long int type
 
     // Send a message.
@@ -82,4 +82,3 @@ int main(int argc, char**argv)
 
     exit(0);
 }
-

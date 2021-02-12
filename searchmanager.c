@@ -77,6 +77,7 @@ int main(int argc, char**argv)
 		else
 			fprintf(stderr,"Message(%d): \"%s\" Sent (%d bytes)\n", sbuf.id, sbuf.prefix,(int)buf_length);
 
+		
 
 		if(i != argc-1)
 			delay(atoi(argv[1]));
