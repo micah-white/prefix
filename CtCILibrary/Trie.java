@@ -31,19 +31,22 @@ public class Trie
     /* Checks whether this trie contains a string with the prefix passed
      * in as argument.
      */
-    public boolean contains(String prefix, boolean exact) {
+    public TrieNode contains(String prefix, boolean exact) {
         TrieNode lastNode = root;
         int i = 0;
         for (i = 0; i < prefix.length(); i++) {
             lastNode = lastNode.getChild(prefix.charAt(i));
             if (lastNode == null) {
-                return false;	 
+                return null;	 
             }
         }
-        return !exact || lastNode.terminates();
+        // return !exact || lastNode.terminates();
+        if(!lastNode.terminates() && exact)
+            return null;
+        return lastNode;
     }
     
-    public boolean contains(String prefix) {
+    public TrieNode contains(String prefix) {
     	return contains(prefix, false);
     }
     

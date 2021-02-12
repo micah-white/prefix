@@ -1,6 +1,8 @@
 package CtCILibrary;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /* One node in the trie. Most of the logic of the trie is implemented
  * in this class.
@@ -70,5 +72,30 @@ public class TrieNode {
     /* Set whether this node is the end of a complete word.*/
     public void setTerminates(boolean t) {
     	terminates = t;
+    }
+
+    public String longestSubTree(String s){
+        if(!Character.isLetter(character))
+            return "";
+        if(children.size() == 0)
+            return s + this.character;
+        
+        List<String> supraStrings = new ArrayList<String>();
+        for(int i = 0; i < 26; i++){
+            TrieNode lowerNode = getChild((char) ('a' + i));
+            TrieNode upperNode = getChild((char) ('A' + i));
+            if(lowerNode != null)
+                supraStrings.add(lowerNode.longestSubTree(s + this.character));
+            if(upperNode != null)
+                supraStrings.add(upperNode.longestSubTree(s + this.character));
+        }
+
+        int index = 0;
+        for(int i = 1; i < supraStrings.size(); i++){
+            if(supraStrings.get(index).length() > supraStrings.get(i).length())
+                index = i;
+        }
+
+        return supraStrings.get(index);
     }
 }
