@@ -45,6 +45,17 @@ public class Trie
             return null;
         return lastNode;
     }
+
+    public String longestWord(String prefix){
+        String longest = "";
+        try{
+          longest = this.contains(prefix).longestSubTree(prefix.substring(0, prefix.length()-1));
+        } catch (NullPointerException e) {
+          return "";
+        }
+
+        return longest;
+    }
     
     public TrieNode contains(String prefix) {
     	return contains(prefix, false);
