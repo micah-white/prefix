@@ -53,8 +53,8 @@ public class PassageProcessor{
 	
 	int prefixCount = 0;
     while(true){
-
 		SearchRequest msg = jni.readPrefixRequestMsg();
+		System.out.println("**prefix(" + msg.requestID + ") " + msg.prefix + " received");
 		if(msg.requestID == 0)
 			break;
 
@@ -73,7 +73,7 @@ public class PassageProcessor{
 				String longestWord = outputs[0];
 				int passageIndex = Integer.parseInt(outputs[1]);
 				int present = 1;
-				if(longestWord == "----")
+				if(longestWord.equals("----"))
 					present = 0;
 				jni.writeLongestWordResponseMsg(prefixCount, msg.prefix, passageIndex, passageList.get(passageIndex), longestWord, numPassages, present);
 				counter++;
@@ -86,5 +86,7 @@ public class PassageProcessor{
 			workers[i].put("");
 		} catch (InterruptedException e) {};
 	}
+
+	System.out.println("Terminating...");
   }
 }

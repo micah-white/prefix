@@ -1,11 +1,14 @@
 JAVA_HOME = /usr/lib/jvm/java-11-openjdk-amd64
 EXEC = searchmanager
 DELAY = 3
-PREFIXES = con pre
+PREFIXES = co preasdfasfdasdfasdfasdfasdf wor
 # JAVA_HOME = /usr/java/latest
 
 searchmanager: searchmanager.c
 	gcc -std=c99 -D_GNU_SOURCE searchmanager.c -o searchmanager
+
+passageprocessor: java
+	java -cp . -Djava.library.path=. edu.cs606.PassageProcessor 2>/dev/null
 
 all: java msgsnd.exe searchmanager
 
@@ -25,8 +28,10 @@ threading: java msgsnd.exe
 	java -cp . -Djava.library.path=. edu.cs606.PassageProcessor 2>/dev/null
 	./msgrcv.exe
 
+valgrind: searchmanager
+	valgrind --leak-check=full ./searchmanager $(DELAY) $(PREFIXES)
 
-test: searchmanager java
+test: searchmanager
 	./searchmanager $(DELAY) $(PREFIXES)
 
 remove_queues: 
